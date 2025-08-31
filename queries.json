@@ -1,0 +1,10 @@
+{
+  "transliteration": {
+    "punjabi": "SELECT * FROM transliteration_punjabi WHERE page = ?",
+    "english": "SELECT * FROM transliteration_english WHERE page = ?"
+  },
+  "translation": {
+    "punjabi": "SELECT * FROM translation_punjabi WHERE page = ?",
+    "english": "SELECT * FROM translation_english WHERE page = ?"
+  }
+}

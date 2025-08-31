@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hukumnama Dash</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .settings-panel {
+            display: none;
+            /* Add other styles for the settings panel */
+        }
+    </style>
+</head>
+<body>
+    <div class="menu-bar">
+        <input type="text" id="page-number" placeholder="Page Number" value="{{ request.args.get('page', 1) }}">
+        <i class="fas fa-bars settings-icon"></i>
+    </div>
+
+    <div class="settings-panel">
+        <h2>Settings</h2>
+        <form id="settings-form">
+            <h4>Transliteration Languages</h4>
+            <label><input type="checkbox" name="transliteration" value="punjabi" {% if 'punjabi' in settings.transliteration %}checked{% endif %}> Punjabi</label>
+            <label><input type="checkbox" name="transliteration" value="english" {% if 'english' in settings.transliteration %}checked{% endif %}> English</label>
+
+            <h4>Translation Languages</h4>
+            <label><input type="checkbox" name="translation" value="punjabi" {% if 'punjabi' in settings.translation %}checked{% endif %}> Punjabi</label>
+            <label><input type="checkbox" name="translation" value="english" {% if 'english' in settings.translation %}checked{% endif %}> English</label>
+            
+            <h4>Gurudwara Information</h4>
+            <label>Name: <input type="text" name="gurudwara_name" value="{{ settings.gurudwara_name }}"></label>
+            <label>Location: <input type="text" name="gurudwara_location" value="{{ settings.gurudwara_location }}"></label>
+
+            <h4>Events</h4>
+            <div id="events-container">
+                <!-- Events will be dynamically added here -->
+            </div>
+            <button type="button" id="add-event">Add Event</button>
+
+            <button type="submit">Save Settings</button>
+        </form>
+    </div>
+
+    <div class="content">
+        <div class="transliterations">
+            {% for lang, content_list in transliterations.items() %}
+                <div class="transliteration-{{ lang }}">
+                    <h3>{{ lang.title() }} Transliteration</h3>
+                    {% for row in content_list %}
+                        <p>{{ row[0] }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="translations">
+            {% for lang, content_list in translations.items() %}
+                <div class="translation-{{ lang }}">
+                    <h3>{{ lang.title() }} Translation</h3>
+                    {% for row in content_list %}
+                        <p>{{ row[0] }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="events-bar">
+        {% for event in settings.events %}
+            <div class="event">
+                <p>{{ event.name }} - {{ event.date }}</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="footer-bar">
+        <p>{{ settings.gurudwara_name }}, {{ settings.gurudwara_location }}</p>
+    </div>
+
+    <script>
+        document.querySelector('.settings-icon').addEventListener('click', () => {
+            const settingsPanel = document.querySelector('.settings-panel');
+            settingsPanel.style.display = settingsPanel.style.display === 'none' ? 'block' : 'none';
+        });
+
+        document.getElementById('settings-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const settings = {
+                transliteration: formData.getAll('transliteration'),
+                translation: formData.getAll('translation'),
+                gurudwara_name: formData.get('gurudwara_name'),
+                gurudwara_location: formData.get('gurudwara_location'),
+                events: [] // Event handling will be added later
+            };
+
+            fetch('/settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(settings)
+            }).then(() => {
+                window.location.reload();
+            });
+        });
+
+        document.getElementById('page-number').addEventListener('change', (e) => {
+            window.location.href = `/?page=${e.target.value}`;
+        });
+
+        // JavaScript for adding and managing events will be added here.
+
+    </script>
+</body>
+</html>
